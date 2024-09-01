@@ -163,15 +163,61 @@ st.title('Interactive Art Database Application')
 # User selection for operation type
 operation = st.selectbox("Choose an operation:", ["Select Table", "Add Record", "Generate Report", "Delete Record"])
 
-# If user selects "Select Table"
 if operation == "Select Table":
     table = st.selectbox("Select a table to view data:", ["Artist", "Artwork", "Orders"])
 
-    if st.button("Fetch Data"):
-        query = f"SELECT * FROM {table};"
-        results = execute_query(query)
-        if results:
-            st.write(results)
+    if table == "Artist":
+        if st.button("Fetch Artist Data"):
+            query = "SELECT * FROM Artist;"
+            results = execute_query(query)
+            if results:
+                st.write(results)
+
+    elif table == "Artwork":
+        artwork_query_type = st.selectbox("Select query type:", ["All Artworks", "Filter by Title", "Filter by Date Created", "Filter by Medium and Availability"])
+
+        if artwork_query_type == "All Artworks":
+            if st.button("Fetch All Artworks"):
+                query = "SELECT * FROM Artwork;"
+                results = execute_query(query)
+                if results:
+                    st.write(results)
+
+        elif artwork_query_type == "Filter by Title":
+            title = st.text_input("Enter title to filter by:")
+            title = title.capitalize()
+            if st.button("Fetch Artworks by Title"):
+                query = "SELECT * FROM Artwork WHERE Title = %s;"
+                params = (title,)
+                results = execute_query(query, params)
+                if results:
+                    st.write(results)
+
+        elif artwork_query_type == "Filter by Date Created":
+            date_created = st.date_input("Enter date to filter by:")
+            if st.button("Fetch Artworks by Date Created"):
+                query = "SELECT * FROM Artwork WHERE DateCreated = %s;"
+                params = (date_created,)
+                results = execute_query(query, params)
+                if results:
+                    st.write(results)
+
+        elif artwork_query_type == "Filter by Medium and Availability":
+            medium = st.selectbox("Select medium to filter by:", ["Oil", "Acrylic", "Watercolor", "Mixed Media"])
+            availability = st.selectbox("Select availability:", [True, False])
+            if st.button("Fetch Artworks by Medium and Availability"):
+                query = "SELECT * FROM Artwork WHERE Medium = %s AND Availability = %s;"
+                params = (medium, availability)
+                results = execute_query(query, params)
+                if results:
+                    st.write(results)
+
+    elif table == "Orders":
+        if st.button("Fetch Orders Data"):
+            query = "SELECT * FROM Orders;"
+            results = execute_query(query)
+            if results:
+                st.write(results)
 
 # If user selects "Add Record"
 elif operation == "Add Record":
@@ -256,7 +302,6 @@ elif operation == "Generate Report":
 
     elif report_type == "Sales at Specific Date":
         date = st.date_input("Date", value=None)
-        # time = st.time_input("Time", value=None)
 
         if st.button("Generate Report"):
             query = "SELECT * FROM Orders WHERE OrderDate = %s"
@@ -274,13 +319,3 @@ elif operation == "Delete Record":
         execute_query(query, params)
         st.success("Record deleted successfully!")
 
-### **2. CSS Styling (Optional)**
-
-# To customize the look and feel of your Streamlit app, you can add custom CSS. However, Streamlit itself has limited support for directly embedding HTML/CSS in its interface. You can use `st.markdown` to embed simple CSS.
-
-#### **3. Running the Application**
-
-# To run your Streamlit app, use the following command in your terminal:
-
-# ```sh
-# streamlit run app.py
